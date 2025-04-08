@@ -6,9 +6,35 @@ import json
 import os
 import arrow
 
-#taken from https://github.com/bremor/bureau_of_meteorology
-#and modified to work as general library (not async) and removed home assistant references
-# by bremor: https://github.com/bremor
+# Some functionality in this file is adapted from https://github.com/bremor/bureau_of_meteorology
+# I have adapted this code to work better with my use case
+# Copyright (c) Bremor https://github.com/bremor
+# Licensed under the MIT License. See the full license text below.
+
+"""
+MIT License
+
+Copyright (c) 2019 Custom cards for Home Assistant
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 """Constants for PyBoM."""
 
 MAP_MDI_ICON = {
