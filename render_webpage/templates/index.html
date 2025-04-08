@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="dashboard">
+
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="datetime">
+                <span class="time">{{ timeStrings.time }}</span>
+                <span class="date">{{ timeStrings.date }}</span>
+            </div>
+            <div class="battery-status">
+                Battery: {{ battery_status }}%
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel: Current Weather -->
+            <div class="current-weather">
+                <div class="section-label">Today</div>
+                <!-- Top Row: Icon and Temperature -->
+                <div class="icon-temp-row">
+                    <div class="weather-icon">
+                        <img src="{{ url_for('static', filename='icons/' + daily_forecast[0].mdi_icon + '.png') }}" alt="{{ daily_forecast[0].extended_text }}">
+                    </div>
+                    <div class="temperature">
+                        {{ daily_forecast[0].temp_max }}°C
+                    </div>
+                </div>
+            
+                <!-- Description -->
+                <div class="description">
+                    {{ daily_forecast[0].extended_text }}
+                </div>
+            
+                <!-- 2x3 Table -->
+                <div class="weather-details">
+                    <div class="weather-detail"><strong>Sunrise</strong><br>{{ daily_forecast[0].astronomical_sunrise_time }}</div>
+                    <div class="weather-detail"><strong>Sunset</strong><br>{{ daily_forecast[0].astronomical_sunset_time }}</div>
+                    <div class="weather-detail"><strong>UV</strong><br>{{ daily_forecast[0].uv_max_index }}</div>
+                    <div class="weather-detail"><strong>Rain Chance</strong><br>{{ daily_forecast[0].rain_chance }}%</div>
+                    <div class="weather-detail"><strong>Rain Low</strong><br>{{ daily_forecast[0].rain_amount_min }}mm</div>
+                    <div class="weather-detail"><strong>Rain High</strong><br>{{ daily_forecast[0].rain_amount_max }}mm</div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Forecasts -->
+            <div class="forecast-panel">
+                <!-- Hourly Forecast -->
+                <div class="hourly-forecast">
+                    {% for hour in hourly_forecast[::2] %}
+                    <div class="forecast-item">
+                        <div class="hour">{{ hour.hour_str }}</div>
+                        <div class="icon">
+                            <img src="{{ url_for('static', filename='icons/' + hour.mdi_icon + '.png') }}" alt="{{ hour.icon_descriptor }}">
+                        </div>
+                        <div class="temp">{{ hour.temp }}°C</div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Daily Forecast -->
+                <div class="daily-forecast">
+                    {% for day in daily_forecast[1:] %}
+                    <div class="forecast-item">
+                        <div class="day">{{ day.day }}</div>
+                        <div class="icon">
+                            <img src="{{ url_for('static', filename='icons/' + day.mdi_icon + '.png') }}" alt="{{ day.extended_text }}">
+                        </div>
+                        <div class="temp">{{ day.temp_max }}°C</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Bar: Weather Warnings -->
+        <div class="bottom-bar">
+            {% for warning in weather_warnings %}
+            <div class="warning">{{ warning }}</div>
+            {% endfor %}
+        </div>
+
+    </div>
+</body>
+</html>
