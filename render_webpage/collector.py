@@ -163,7 +163,14 @@ class Collector:
             arrowTS = arrow.get(d["date"])
             tzawareTS = arrowTS.to(self.timezone)
             d["day"] =tzawareTS.format("dddd")#format to day of week, e.g. Monday
-            print(f"TS String: {d["date"]} tzawareTS: {tzawareTS}, d_day: {d["day"]} maxtemp: {d['temp_max']} TZ: {self.timezone}")
+            #get sunrise and sunset times in string
+            sunrise = arrow.get(d["astronomical"]["sunrise_time"])
+            tzawareSunrise = sunrise.to(self.timezone)
+            d["astronomical"]["sunrise_formatted"] = tzawareSunrise.format("h:mma")#format to hr and am/pm, e.g. 1pm
+            sunset = arrow.get(d["astronomical"]["sunset_time"])
+            tzawareSunset = sunset.to(self.timezone)
+            d["astronomical"]["sunset_formatted"] = tzawareSunset.format("h:mma")#format to hr and am/pm, e.g. 1pm
+            # print(f"TS String: {d["date"]} tzawareTS: {tzawareTS}, d_day: {d["day"]} maxtemp: {d['temp_max']} TZ: {self.timezone}")
             flatten_dict(["amount"], d["rain"])
             flatten_dict(["rain", "uv", "astronomical"], d)
 

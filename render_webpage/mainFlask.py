@@ -23,7 +23,7 @@ def index():
     print(f"Testing mode: {testing}")
     mycol = Collector(lat, long,test=testing, test_json=testPath)
     mycol.async_update()
-    battery_status = "89"
+    battery_status = 89
     current_data = mycol.observations_data['data']
     hourly_forecast = mycol.hourly_forecasts_data['data'][0:10]
     daily_forecast = mycol.daily_forecasts_data['data'][0:6]
