@@ -2,10 +2,14 @@ from flask import Flask, render_template, request
 import requests
 import os
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By 
 from collector import Collector
 import arrow
 import argparse
+
+from PIL import Image
 
 app = Flask(__name__)
 lat = -34.92866000
@@ -44,11 +48,37 @@ def index():
 @app.route('/screenshot')
 def screenshot():
     options = Options()
-    options.add_argument('--headless')
-    options.add_argument('--window-size=600x448')
-    driver = webdriver.Chrome(options=options)
-    driver.get('http://127.0.0.1:5000/')
-    driver.save_screenshot('weather.png')
+    options.add_argument("--headless=new")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--force-device-scale-factor=1")
+    options.add_argument("--disable-infobars")
+    options.add_argument("--hide-scrollbars")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--window-size=600,448")
+    options.binary_location = "/usr/bin/chromium-browser"  # Update if needed
+
+    service = Service("/usr/bin/chromedriver")  # Update if needed
+
+    driver = webdriver.Chrome(service=service, options=options)
+    driver.set_window_size(600, 448+100)  #
+
+    # Optional: confirm
+    print("Adjusted to:", driver.execute_script("return [window.innerWidth, window.innerHeight]"))
+
+  
+
+    driver.execute_script("window.resizeTo(600, 448);")
+    driver.get("http://127.0.0.1:5000/")
+    # driver.save_screenshot('weather.png')
+    element = driver.find_element(By.ID, "weather-container")
+    driver.execute_script("arguments[0].scrollIntoView(true);", element)
+    print("Element size:", element.size)
+    element.screenshot("weather.png")
+    img = Image.open('weather.png')
+    print(f"Image size: {img.width}x{img.height}")
+    print(driver.title)
     driver.quit()
     return "Screenshot saved as weather.png"
 
@@ -63,7 +93,7 @@ def main():
     args = parse_arguments()
     testing = args.testing
     print(f"Testing mode: {testing}")
-    app.run(debug=True)
+    app.run(debug=True,host="0.0.0.0", port=5000)
 
 if __name__ == '__main__':
     main()
