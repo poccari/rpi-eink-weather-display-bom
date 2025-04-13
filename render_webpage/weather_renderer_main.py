@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 import requests
 import os
 from selenium import webdriver
@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 from collector import Collector
 import arrow
 import argparse
+from io import BytesIO
 
 from PIL import Image
 
@@ -70,17 +71,31 @@ def screenshot():
   
 
     driver.execute_script("window.resizeTo(600, 448);")
-    driver.get("http://127.0.0.1:5000/")
-    # driver.save_screenshot('weather.png')
-    element = driver.find_element(By.ID, "weather-container")
-    driver.execute_script("arguments[0].scrollIntoView(true);", element)
-    print("Element size:", element.size)
-    element.screenshot("weather.png")
-    img = Image.open('weather.png')
-    print(f"Image size: {img.width}x{img.height}")
-    print(driver.title)
-    driver.quit()
-    return "Screenshot saved as weather.png"
+    try:
+        driver.get("http://127.0.0.1:5000/")
+        # driver.save_screenshot('weather.png')
+        element = driver.find_element(By.ID, "weather-container")
+        driver.execute_script("arguments[0].scrollIntoView(true);", element)
+        print("Element size:", element.size)
+        # element.screenshot("weather.png")
+        png_data = element.screenshot_as_png
+        # img = Image.open('weather.png')
+        # print(f"Image size: {img.width}x{img.height}")
+        # print(driver.title)
+    finally:
+        driver.quit()
+
+    # Use BytesIO to return image as a file-like object
+    byte_io = BytesIO()
+    byte_io.write(png_data)
+    byte_io.seek(0)
+
+    return send_file(
+        byte_io,
+        mimetype='image/png',
+        as_attachment=True,
+        download_name='weather-screenshot.png'
+    )
 
 
 def parse_arguments():
