@@ -18,7 +18,7 @@
                     {{ locations_data.name }}
                 </div>
                 <div class="battery-status">
-                    <span class="battery-text">Battery: {{ battery_status }}%</span>
+                    <span class="battery-text">Battery: {{ '%d'|format(battery_status|float) }}%</span>
             
                     {% if battery_status > 75 %}
                     <div class="battery-icon">

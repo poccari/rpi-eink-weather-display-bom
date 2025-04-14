@@ -26,9 +26,17 @@ testPath = os.path.join(os.path.dirname(__file__), 'testFixtures', 'mockWeatherD
 @app.route('/')
 def index():
     print(f"Testing mode: {testing}")
+    batteryPC = request.args.get('battery-status')
+    print(f"battery PC: {batteryPC}, type: {type(batteryPC)}")
+    if not batteryPC:
+        battery_status = 0
+    else:
+        try:
+            battery_status = float(batteryPC)
+        except ValueError:
+            battery_status = 0
     mycol = Collector(lat, long,test=testing, test_json=testPath)
     mycol.async_update()
-    battery_status = 89
     current_data = mycol.observations_data['data']
     hourly_forecast = mycol.hourly_forecasts_data['data'][0:10]
     daily_forecast = mycol.daily_forecasts_data['data'][0:6]
