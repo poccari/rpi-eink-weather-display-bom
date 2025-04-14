@@ -5,11 +5,21 @@
     font-family: Arial, sans-serif;
 }
 
-body {
+html body {
     background-color: #ffffff;
     color: #1e1e1e;
-    padding: 20px;
+    padding: 0;
+    margin: 0;
 }
+
+  
+  #weather-container {
+    width: 600px;
+    height: 448px;
+    background: white;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
 
 .dashboard {
     display: flex;
@@ -30,7 +40,7 @@ body {
 
 .datetime {
     display: flex;
-    gap: 10px;
+    gap: 5px;
 }
 
 .location {
@@ -38,7 +48,7 @@ body {
     margin-right: auto;
     gap: 10px;
     font-weight: bold;
-    font-size: 40px;
+    font-size: 30px;
 }
 
 .battery-status {
@@ -66,8 +76,8 @@ body {
 .current-weather {
     flex: 1;
     background-color: #ffffff;
-    padding: 20px;
-    border-radius: 5px;
+    padding: 0px;
+    border-radius: 0px;
     color: #1e1e1e;
 }
 
@@ -84,12 +94,12 @@ body {
 }
 
 .weather-icon img {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
 }
 
 .temperature {
-    font-size: 48px;
+    font-size: 40px;
     font-weight: bold;
 }
 
