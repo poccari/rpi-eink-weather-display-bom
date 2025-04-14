@@ -110,18 +110,18 @@ html body {
 }
 
 .weather-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px 20px;
-    font-size: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    font-size: 13px;
     text-align: center;
     margin-top: 10px;
 }
 
 .weather-detail {
     background-color: #ffffff;
-    padding: 8px;
-    border-radius: 5px;
+    width: 48%;
+    margin-bottom: 20px; 
 }
 
 /* Forecast Panel */

@@ -9,10 +9,11 @@ from PIL import Image
 from inky.auto import auto
 
 
-def get_screenshot(image_filepath):
-    response = requests.get("http://127.0.0.1/screenshot")
-    with open(image_filepath, "wb") as f:
-        f.write(response.content)
+def get_screenshot(image_path,battery_percentage):
+    #use following command as subprocess to save screenshot to file
+    # subprocess.run(["scrot", image_filepath])
+    #subprocess.run([wkhtmltoimage, "--width 600", "--height 448", f"http://localhost:5000/?battery-status={battery_percentage}" image_path])
+    pass
 
 def set_up_display():
     try:

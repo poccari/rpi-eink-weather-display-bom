@@ -1,16 +1,36 @@
-
+#!/bin/bash
 
 SCRIPTHOME="$( cd "$(dirname "$0")" ; pwd -P )"
 CURRENTUSER=$(logname)
 
-#install chromium and driver for webpage renderer
-sudo apt install -y chromium-browser
-sudo apt install -y chromium-chromedriver
+#check I2C is enabled
+
+
+# Check if I2C is enabled
+I2C_ENABLED=$(sudo raspi-config nonint get_i2c)
+
+if [ "$I2C_ENABLED" -eq 0 ]; then
+    echo "I2C is already enabled."
+else
+    echo "I2C is disabled. Enabling now..."
+    sudo raspi-config nonint do_i2c 0
+    if [ $? -eq 0 ]; then
+        echo "I2C has been successfully enabled."
+    else
+        echo "Failed to enable I2C."
+        exit 1
+    fi
+fi
+
+#install wkhtmltopdf for lightweight image generation from webpage
+sudo apt install -y wkhtmltopdf
 
 
 cd render_webpage
 #create virtual environment for service, and install requirements
 python -m venv ./.render_webpage_venv/
+source ./.render_webpage_venv/bin/activate
+pip install -r requirements.txt
 
 #move dashboard_generator service 
 sed -i -e "s%<ExecLocation>%$SCRIPTHOME/render_webpage%" weather_renderer.service
