@@ -10,7 +10,6 @@ import arrow
 import argparse
 from io import BytesIO
 
-from PIL import Image
 
 app = Flask(__name__)
 lat = -34.92866000
