@@ -1,0 +1,15 @@
+[Unit]
+Description=Image Flasher Service
+After=weather_renderer.service
+Requires=weather_renderer.service
+
+[Service]
+Type=simple
+ExecStart=<venvpath>/python <ExecLocation>/image_flasher.py
+Restart=no
+User=<username>
+WorkingDirectory=<ExecLocation>
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

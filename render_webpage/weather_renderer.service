@@ -3,7 +3,7 @@ Description=webpage to render weather display
 After=network-online.target
  
 [Service]
-ExecStart=<venvpath>/python <ExecLocation>/weather_renderer_main.py --serve-in-foreground
+ExecStart=<venvpath>/python <ExecLocation>/weather_renderer_main.py
 WorkingDirectory=<ExecLocation>
 StandardOutput=inherit
 StandardError=inherit

@@ -1,4 +1,11 @@
 #!/bin/bash
+set -e
+
+#check that you're running as root, as this only works when you're root
+if [ `whoami` != root ]; then
+    echo Please run this script as root or using sudo
+    exit
+fi
 
 SCRIPTHOME="$( cd "$(dirname "$0")" ; pwd -P )"
 CURRENTUSER=$(logname)
@@ -23,7 +30,7 @@ else
 fi
 
 #install wkhtmltopdf for lightweight image generation from webpage
-sudo apt install -y wkhtmltopdf
+apt install -y wkhtmltopdf
 
 
 cd render_webpage
@@ -35,10 +42,12 @@ pip install -r requirements.txt
 #move dashboard_generator service 
 sed -i -e "s%<ExecLocation>%$SCRIPTHOME/render_webpage%" weather_renderer.service
 sed -i -e "s%<username>%$CURRENTUSER%" weather_renderer.service
-sed -i -e "s%<venvpath>%$SCRIPTHOME/.render_webpage_venv/bin%" weather_renderer.service
+sed -i -e "s%<venvpath>%$SCRIPTHOME/render_webpage/.render_webpage_venv/bin%" weather_renderer.service
 mv weather_renderer.service /lib/systemd/system/
 
 systemctl enable weather_renderer.service
 systemctl start weather_renderer.service
 
-#need to set I2C as on using raspi-config
+
+#install pijuice
+apt-get install -y pijuice-base
