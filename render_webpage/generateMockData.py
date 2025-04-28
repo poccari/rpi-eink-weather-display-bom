@@ -1,16 +1,16 @@
-import collector
+from pyBOM import BOM_Forecast as pyBOM
 import os
 import json
 
 tstfixpath = os.path.join(os.path.dirname(__file__), 'testFixtures')
-filename = "mockWeatherData2.json"
+filename = "mockWeatherData3.json"
 outFN = os.path.join(tstfixpath, filename)
 
 lat = -34.92866000   
 long =  138.59863000
 
-mycol = collector.Collector(lat,long)
-mycol.async_update()
+mycol = pyBOM(lat,long)
+mycol.get_forecast()
 
 endDict = {}
 endDict['observations_data'] = mycol.observations_data['data']

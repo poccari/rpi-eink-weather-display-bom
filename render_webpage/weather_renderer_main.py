@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, send_file
 import os
-from collector import Collector
+from pyBOM import BOM_Forecast as pyBOM
 import arrow
 import argparse
 
@@ -25,13 +25,13 @@ def index():
             battery_status = float(batteryPC)
         except ValueError:
             battery_status = 0
-    mycol = Collector(lat, long,test=testing, test_json=testPath)
-    mycol.async_update()
-    current_data = mycol.observations_data['data']
-    hourly_forecast = mycol.hourly_forecasts_data['data'][0:10]
-    daily_forecast = mycol.daily_forecasts_data['data'][0:6]
-    weather_warnings = mycol.warnings_data['data']
-    locations_data = mycol.locations_data['data']
+    forcast = pyBOM(lat, long,test=testing, test_json=testPath)
+    forcast.get_forecast()
+    current_data = forcast.observations_data['data']
+    hourly_forecast = forcast.hourly_forecasts_data['data'][0:10]
+    daily_forecast = forcast.daily_forecasts_data['data'][0:6]
+    weather_warnings = forcast.warnings_data['data']
+    locations_data = forcast.locations_data['data']
     time = arrow.now()
     timeStrings = {'date':time.format("dddd, D MMMM"),
                    'time':time.format("h:mm A")}

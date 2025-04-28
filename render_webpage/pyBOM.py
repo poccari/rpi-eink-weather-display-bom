@@ -125,8 +125,8 @@ def geohash_encode(latitude, longitude, precision=6):
 
 _LOGGER = logging.getLogger(__name__)
 
-class Collector:
-    """Collector for PyBoM."""
+class BOM_Forecast:
+    """PyBoM class to pull forecast data from BOM API."""
 
     def __init__(self, latitude, longitude,test=False,test_json=None):
         """Init collector."""
@@ -206,8 +206,8 @@ class Collector:
                 d["rain_amount_range"] = f"{d['rain_amount_min']} to {d['rain_amount_max']}"
 
 
-    def async_update(self):
-        """Refresh the data on the collector object.
+    def get_forecast(self):
+        """get forecast data from API endpoint.
         if the object is initialised with test=True, it will populate from the test_json file"""
         if self.test:
             self.populate_test_data()
