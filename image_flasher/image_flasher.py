@@ -215,7 +215,7 @@ def wait_until_internet_connection():
     connection_found = loop_until_internet()
 
     if connection_found:
-        return
+        return True
     else:
         logger.info(
             'Internet connection not yet found, restarting networking...')
@@ -228,9 +228,9 @@ def wait_until_internet_connection():
     logger.info('Checking for internet again...')
     # Check for internet again
     if loop_until_internet():
-        return
+        return True
+    return False
 
-    raise Exception('Timeout waiting for internet connection')
 
 
 def loop_until_internet(times=3):
@@ -264,6 +264,13 @@ def enable_wakeups(pj,local_hours,timezone_str):
     # https://github.com/PiSupply/PiJuice/issues/362
     logger.debug('Enabling RTC wakeup alarm ...')
     pj.rtcAlarm.SetWakeupEnabled(True)
+    logger.debug('Enabling wakeup on charge ({}) ...'.format(
+        WAKEUP_ON_CHARGE_BATTERY_LEVEL))
+    pj.power.SetWakeUpOnCharge(WAKEUP_ON_CHARGE_BATTERY_LEVEL)
+
+def disable_wakeups(pj):
+    logger.debug('Disabling RTC wakeup alarm ...')
+    pj.rtcAlarm.SetWakeupEnabled(False)
     logger.debug('Enabling wakeup on charge ({}) ...'.format(
         WAKEUP_ON_CHARGE_BATTERY_LEVEL))
     pj.power.SetWakeUpOnCharge(WAKEUP_ON_CHARGE_BATTERY_LEVEL)
@@ -318,14 +325,16 @@ if __name__ == "__main__":
     image_fp = os.path.join(imageDir,"weather.png")
     pj = get_pijuice(piJuice_addr)
     #enable wakeups early
-    local_hours = [6, 10, 15, 18, 21]
-    timezone_str = 'Australia/Adelaide'
     enable_wakeups(pj,config['wakeup_hours'], config['timezone'])
     # get battery percentage
     battery_percentage = pj.status.GetChargeLevel()
 
+    
+    connection_found = wait_until_internet_connection()
+    
+        
     #wait for NTP sync so correct time is set
-    if not is_ntp_synchronized():
+    if not is_ntp_synchronized() and connection_found:
         timedout = wait_for_ntp_sync()
         if timedout:
             #no NTP, set time from RTC
@@ -334,7 +343,13 @@ if __name__ == "__main__":
     if battery_percentage['data']< config['low_battery_threshold']:
         logger.info('Battery level is %f which is below threshold of %d. Flashing low battery image',battery_percentage['data'],config['low_battery_threshold'])
         image_fp = os.path.join(os.path.dirname(__file__),"service_images","low_battery.png")
+        #disable wakeups
+        disable_wakeups(pj)
+    elif not connection_found:
+        logger.info('No internet connection found. Flashing no connection image')
+        image_fp = os.path.join(os.path.dirname(__file__),"service_images","no_internet.png")
     else:
+        #everything is ok, get the screenshot
         get_screenshot(image_fp,battery_percentage['data'])
     inky_display = set_up_display()
     flash_display(image_fp,inky_display)
@@ -342,7 +357,7 @@ if __name__ == "__main__":
 
     # Shut down the PiJuice - set alarms etc etc
 
-    if is_pijuice_on_battery(pj) and not is_ssh_active():
+    if not is_ssh_active():
     # if is_pijuice_on_battery(pj):
         logger.info('Shutting down the system ...')
         shutdown(pj,passedLogger=logger)
