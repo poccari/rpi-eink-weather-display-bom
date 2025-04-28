@@ -12,6 +12,7 @@ from pijuice import PiJuice
 import os
 import time
 import arrow
+import json
 
 
 WAKEUP_ON_CHARGE_BATTERY_LEVEL = 0
@@ -247,9 +248,9 @@ def loop_until_internet(times=3):
 
 
 
-def enable_wakeups(pj):
-    local_hours = [6, 10, 15, 18, 21]
-    utc_hours = local_hours_to_utc(local_hours, 'Australia/Adelaide')
+def enable_wakeups(pj,local_hours,timezone_str):
+
+    utc_hours = local_hours_to_utc(local_hours, timezone_str)
     alarm_config = {
         'second': 0,
         'minute': 0,
@@ -305,15 +306,24 @@ if __name__ == "__main__":
             * else - send poweroff signal to pijuice and also shut down the pi
     """
     piJuice_addr = 0x14
+    config_fp = os.path.abspath(os.path.join(os.path.dirname(__file__),"..","config.json"))
+    with open(config_fp, 'r') as f:
+        config = json.load(f)
+
+    logger.info("Config received: %s", config)
+
     imageDir = os.path.join(os.path.dirname(__file__),"weather_images")
     if not os.path.exists(imageDir):
         os.makedirs(imageDir)
     image_fp = os.path.join(imageDir,"weather.png")
     pj = get_pijuice(piJuice_addr)
     #enable wakeups early
-    enable_wakeups(pj)
+    local_hours = [6, 10, 15, 18, 21]
+    timezone_str = 'Australia/Adelaide'
+    enable_wakeups(pj,config['wakeup_hours'], config['timezone'])
     # get battery percentage
     battery_percentage = pj.status.GetChargeLevel()
+
     #wait for NTP sync so correct time is set
     if not is_ntp_synchronized():
         timedout = wait_for_ntp_sync()
@@ -321,9 +331,14 @@ if __name__ == "__main__":
             #no NTP, set time from RTC
             set_time_from_RTC(pj)
 
-    get_screenshot(image_fp,battery_percentage['data'])
+    if battery_percentage['data']< config['low_battery_threshold']:
+        logger.info('Battery level is %f which is below threshold of %d. Flashing low battery image',battery_percentage['data'],config['low_battery_threshold'])
+        image_fp = os.path.join(os.path.dirname(__file__),"service_images","low_battery.png")
+    else:
+        get_screenshot(image_fp,battery_percentage['data'])
     inky_display = set_up_display()
     flash_display(image_fp,inky_display)
+
 
     # Shut down the PiJuice - set alarms etc etc
 

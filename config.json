@@ -1,0 +1,15 @@
+{
+    "forecast_location": {
+        "latitude": 37.7749,
+        "longitude": -122.4194
+    },
+    "wakeup_hours": [
+        6,
+        10,
+        15,
+        18,
+        21
+    ],
+    "timezone": "Australia/Adelaide",
+    "low_battery_threshold": 10
+}
