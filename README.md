@@ -20,6 +20,16 @@ Most weather APIs and algorithms aren't so great in Australia, so this uses Aust
 Runs a flask app, which pulls data from data source based on config file, and renders to webpage. 
 Takes render to PNG to flash to e-ink display
 
+**Installation**
+
+Pull the inky (or whatever ereader libraries you need) and install
+run
+```
+git clone https://github.com/pimoroni/inky
+cd inky
+./install.sh
+```
+
 
 
 **attributions**

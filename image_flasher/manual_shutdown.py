@@ -7,9 +7,11 @@ manually shuts down the system but allows wakups
 import logging
 from image_flasher import shutdown, get_pijuice, enable_wakeups
 
+mylogger = logging.getLogger(__name__)
+
 if __name__ == '__main__':
     logging.info('Running shutdown.py')
     piJuice_addr = 0x14
     pj = get_pijuice(piJuice_addr)
     enable_wakeups(pj)
-    shutdown(pj)
+    shutdown(pj,passedLogger=mylogger)

@@ -10,7 +10,6 @@ from inky.auto import auto
 import subprocess
 from pijuice import PiJuice
 import os
-import logging
 import time
 import arrow
 
@@ -19,6 +18,58 @@ WAKEUP_ON_CHARGE_BATTERY_LEVEL = 0
 config = {}
 config['RENDER_URL'] = 'www.google.com'  # TODO: replace with actual render URL
 #config - wakeup hours and timezone
+
+import logging
+import sys
+from pathlib import Path
+from logging.handlers import RotatingFileHandler
+
+import logging
+import sys
+from pathlib import Path
+from logging.handlers import RotatingFileHandler
+
+def setup_logger(name='my_logger', log_dir='logs',log_file='app.log', level=logging.INFO):
+    """
+    Set up a logger that writes to both the console and a rotating log file.
+    Log file rotates when it reaches 1MB, keeping 5 backups.
+    """
+    if os.path.exists(log_dir) == False:
+        os.makedirs(log_dir)
+    log_file = os.path.join(log_dir, log_file)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    if not logger.hasHandlers():
+        # Console handler
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(level)
+        ch_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        ch.setFormatter(ch_formatter)
+
+        # File handler with rotation
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        fh = RotatingFileHandler(
+            filename=log_path,
+            maxBytes=1 * 1024 * 1024,  # 1 MB
+            backupCount=5
+        )
+        fh.setLevel(level)
+        fh_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh.setFormatter(fh_formatter)
+
+        # Add handlers
+        logger.addHandler(ch)
+        logger.addHandler(fh)
+
+    return logger
+
+
+
+logger = setup_logger('image_flasher', "logs", 'image_flasher.log')
+
 
 def set_time_from_RTC(pj):
     resp = pj.rtcAlarm.GetTime()
@@ -147,17 +198,17 @@ def is_ssh_active():
     return len(lines) > 0
 
 def run_cmd(cmd):
-    logging.info('Running "{}"'.format(cmd))
+    logger.info('Running "{}"'.format(cmd))
     result = subprocess.run(cmd, shell=True, capture_output=True)
-    logging.info('stdout:')
-    logging.info(result.stdout)
-    logging.info('stderr:')
-    logging.info(result.stderr)
-    logging.info('End of process output.')
+    logger.info('stdout:')
+    logger.info(result.stdout)
+    logger.info('stderr:')
+    logger.info(result.stderr)
+    logger.info('End of process output.')
     return result
 
 def wait_until_internet_connection():
-    logging.info('Waiting for internet connection ...')
+    logger.info('Waiting for internet connection ...')
 
     # Try to check for internet connection
     connection_found = loop_until_internet()
@@ -165,7 +216,7 @@ def wait_until_internet_connection():
     if connection_found:
         return
     else:
-        logging.info(
+        logger.info(
             'Internet connection not yet found, restarting networking...')
         # If not found, restart networking
         run_cmd('sudo ifconfig wlan0 down')
@@ -173,7 +224,7 @@ def wait_until_internet_connection():
         run_cmd('sudo ifconfig wlan0 up')
         time.sleep(5)
 
-    logging.info('Checking for internet again...')
+    logger.info('Checking for internet again...')
     # Check for internet again
     if loop_until_internet():
         return
@@ -187,7 +238,7 @@ def loop_until_internet(times=3):
             res = requests.get(config['RENDER_URL'], params={
                 'ping': 'true'}, timeout=8)
             if res.status_code == 200:
-                logging.info('Internet connection found!')
+                logger.info('Internet connection found!')
                 return True
         except:
             continue
@@ -205,14 +256,14 @@ def enable_wakeups(pj):
         'hour': ';'.join(map(str, utc_hours)),
         'day': 'EVERY_DAY'
     }
-    logging.debug('pj.rtcAlarm.SetAlarm() with params: {}'.format(alarm_config))
+    logger.debug('pj.rtcAlarm.SetAlarm() with params: {}'.format(alarm_config))
     pj.rtcAlarm.SetAlarm(alarm_config)
-    logging.debug('pj.rtcAlarm.GetAlarm(): {}'.format(pj.rtcAlarm.GetAlarm()))
+    logger.debug('pj.rtcAlarm.GetAlarm(): {}'.format(pj.rtcAlarm.GetAlarm()))
     # It looked like it's possible that time sync unsets the RTC alarm.
     # https://github.com/PiSupply/PiJuice/issues/362
-    logging.debug('Enabling RTC wakeup alarm ...')
+    logger.debug('Enabling RTC wakeup alarm ...')
     pj.rtcAlarm.SetWakeupEnabled(True)
-    logging.debug('Enabling wakeup on charge ({}) ...'.format(
+    logger.debug('Enabling wakeup on charge ({}) ...'.format(
         WAKEUP_ON_CHARGE_BATTERY_LEVEL))
     pj.power.SetWakeUpOnCharge(WAKEUP_ON_CHARGE_BATTERY_LEVEL)
 
@@ -228,11 +279,11 @@ def local_hours_to_utc(local_hours, timezone_str):
     utc_hours.sort()
     return utc_hours
 
-def shutdown(pj):
-    logging.info('Flushing logs ...')
-    logging.shutdown()
-    time.sleep(5)
-    logging.info('Shutting down ...')
+def shutdown(pj,passedLogger = None):
+    if passedLogger:
+        logger = passedLogger
+
+    logger.info('Shutting down ...')
     # Make sure power to the Raspberry PI is stopped to not discharge the battery
     pj.power.SetSystemPowerSwitch(0)
     pj.power.SetPowerOff(15)  # Cut power after n seconds
@@ -276,8 +327,9 @@ if __name__ == "__main__":
 
     # Shut down the PiJuice - set alarms etc etc
 
-    if not is_pijuice_on_battery(pj) and not is_ssh_active():
-        logging.info('Shutting down the system ...')
-        shutdown(pj)
+    if is_pijuice_on_battery(pj) and not is_ssh_active():
+    # if is_pijuice_on_battery(pj):
+        logger.info('Shutting down the system ...')
+        shutdown(pj,passedLogger=logger)
     else:
-        logging.info('System is still connected to power or SSH session is active. Not shutting down.')
+        logger.info(f'System is still connected to power or SSH session is active. Not shutting down. ssh-state:{is_ssh_active()}. Pijuice on battery state: {is_pijuice_on_battery(pj)}')
