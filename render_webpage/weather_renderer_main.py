@@ -3,14 +3,26 @@ import os
 from pyBOM import BOM_Forecast as pyBOM
 import arrow
 import argparse
-
+import json
 
 
 app = Flask(__name__)
-lat = -34.92866000
-long =  138.59863000
+
 testing = True
+configPath = os.path.abspath(os.path.join(os.path.dirname(__file__),"..", 'config.json'))
 testPath = os.path.join(os.path.dirname(__file__), 'testFixtures', 'mockWeatherData.json')
+
+try:
+    with open(configPath) as config_file:
+        config = json.load(config_file)
+    print(f"Config: {config}")
+    forecast_location = config.get('forecast_location',{'latitude': -34.92866000, 'longitude': 138.59863000})
+    lat = forecast_location.get('latitude',-34.92866000)#deafault to Adelaide
+    long = forecast_location.get('longitude',138.59863000)
+except Exception as e:
+    print(f"Error loading config file: {e}")
+    lat = -34.92866000
+    long =  138.59863000
 
 
 @app.route('/')
