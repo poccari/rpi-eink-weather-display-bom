@@ -33,7 +33,7 @@ class image_flasher:
         low_battery_threshold: int percentage to consider low battery
         
         """
-        self.setup_logger()
+        self.setup_logger(level = config.get('logging_level',logging.INFO))
         self.pijuice_addr = pijuice_addr
         self.configure(config)
 
@@ -52,6 +52,14 @@ class image_flasher:
         Set up a logger that writes to both the console and a rotating log file.
         Log file rotates when it reaches 1MB, keeping 5 backups.
         """
+        if isinstance(level, str):
+            level_str = level.upper()
+            level = getattr(logging, level_str, None)
+            if not isinstance(level, int):
+                raise ValueError(f"Invalid log level string: {level_str}")
+        elif not isinstance(level, int):
+            raise TypeError("Level must be a string or an int (e.g., logging.DEBUG).")
+
         if os.path.exists(log_dir) == False:
             os.makedirs(log_dir)
         log_file = os.path.join(log_dir, log_file)
@@ -212,7 +220,7 @@ class image_flasher:
         # Get the latest weather data
         connection_found = self.wait_until_internet_connection()
         battery_percentage = self.get_battery_percentage()
-        if battery_percentage['data'] < self.config['low_battery_threshold']:
+        if battery_percentage < self.low_battery_threshold:
             self.logger.info('Battery level is %f which is below threshold of %d. Flashing low battery image', battery_percentage, self.low_battery_threshold)
             image_to_flash = self.low_battery_image_fp
         else:
@@ -254,7 +262,7 @@ class image_flasher:
             raise TypeError("You need to update the Inky library to >= v1.1.0")
 
         try:
-            self.inky_display.set_border(inky_display.BLACK)
+            self.inky_display.set_border(self.inky_display.BLACK)
         except NotImplementedError:
             pass
         return True
@@ -337,7 +345,9 @@ class image_flasher:
                 if res.status_code == 200:
                     self.logger.info('Internet connection found!')
                     return True
-            except:
+            except Exception as e:
+                self.logger.info('Internet connection not found. Attempt %d/%d', i+1, times)
+                self.logger.debug('Address checked: %s, Error: %s', self.internet_check_url,e)
                 continue
 
         return False
@@ -450,8 +460,9 @@ if __name__ == "__main__":
             break
         else:
             timeUntilNextWakeup = IFHandler.time_until_next_wakeup()
+            now = arrow.now(IFHandler.timezone)
             IFHandler.logger.debug('System is still connected to power or SSH session is active. Not shutting down. ssh-state:%s. Pijuice on battery state:%s',IFHandler.is_ssh_active(),IFHandler.is_pijuice_on_battery())
-            IFHandler.logger.info("wairing for next wakeup in %f seconds",timeUntilNextWakeup)
+            IFHandler.logger.info("wairing for next wakeup in %f seconds at %s",timeUntilNextWakeup,now.shift(seconds=timeUntilNextWakeup).format("DD-MM-YYYY HH:mm:ss"))
             time.sleep(timeUntilNextWakeup)  # Sleep until next wakeup
 
 
