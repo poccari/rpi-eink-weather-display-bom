@@ -365,7 +365,7 @@ class image_flasher:
         }
         self.logger.debug('pj.rtcAlarm.SetAlarm() with params: {}'.format(alarm_config))
         self.pj.rtcAlarm.SetAlarm(alarm_config)
-        self.logger.debug('pj.rtcAlarm.GetAlarm(): {}'.format(pj.rtcAlarm.GetAlarm()))
+        self.logger.debug('pj.rtcAlarm.GetAlarm(): {}'.format(self.pj.rtcAlarm.GetAlarm()))
         # It looked like it's possible that time sync unsets the RTC alarm.
         # https://github.com/PiSupply/PiJuice/issues/362
         self.logger.debug('Enabling RTC wakeup alarm ...')
