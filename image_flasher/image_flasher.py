@@ -416,7 +416,7 @@ class image_flasher:
         Check if the system is ok to shutdown.
         if it is on external poer or if there is an active ssh session, don't shutdown
         """
-        return not (self.is_pijuice_on_battery() or self.is_ssh_active())
+        return self.is_pijuice_on_battery() and not self.is_ssh_active()
     
     def time_until_next_wakeup(self):
         """
