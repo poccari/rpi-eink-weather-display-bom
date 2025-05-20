@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Config</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map { height: 300px; margin-bottom: 10px; }
+        label { display: block; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Weather Configuration</h1>
+    <form method="post">
+        <label>Choose Location (click map):</label>
+        <div id="map"></div>
+        <input type="hidden" id="latitude" name="latitude" value="{{ config.forecast_location.latitude }}">
+        <input type="hidden" id="longitude" name="longitude" value="{{ config.forecast_location.longitude }}">
+
+        <label>Wakeup Hours:</label>
+        {% for hour in range(0, 24) %}
+            <label><input type="checkbox" name="wakeup_hours" value="{{ hour }}"
+                {% if hour in config.wakeup_hours %} checked {% endif %}> {{ hour }}:00</label>
+        {% endfor %}
+
+        <label>Timezone:</label>
+        <input type="text" name="timezone" value="{{ config.timezone }}">
+
+        <label>Low Battery Threshold:</label>
+        <input type="number" name="low_battery_threshold" value="{{ config.low_battery_threshold }}">
+
+        <br><br>
+        <button type="submit">Save Config</button>
+    </form>
+
+    <script>
+        const map = L.map('map').setView([{{ config.forecast_location.latitude }}, {{ config.forecast_location.longitude }}], 5);
+        const marker = L.marker([{{ config.forecast_location.latitude }}, {{ config.forecast_location.longitude }}], {draggable: true}).addTo(map);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        function updateCoords(latlng) {
+            document.getElementById('latitude').value = latlng.lat;
+            document.getElementById('longitude').value = latlng.lng;
+        }
+
+        marker.on('dragend', function (e) {
+            updateCoords(marker.getLatLng());
+        });
+
+        map.on('click', function(e) {
+            marker.setLatLng(e.latlng);
+            updateCoords(e.latlng);
+        });
+    </script>
+</body>
+</html>

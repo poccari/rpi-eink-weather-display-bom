@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, redirect, url_for
 import os
 from pyBOM import BOM_Forecast as pyBOM
 import arrow
@@ -16,6 +16,20 @@ testPath = os.path.join(os.path.dirname(__file__), 'testFixtures', 'mockWeatherD
 # Default coordinates for Adelaide, Australia
 lat = -34.92866000
 long =  138.59863000
+
+def load_config():
+    with open(configPath) as f:
+        return json.load(f)
+
+def save_config(data):
+    current = load_config()
+    current['forecast_location'] = data['forecast_location']
+    current['wakeup_hours'] = data['wakeup_hours']
+    current['timezone'] = data['timezone']
+    current['low_battery_threshold'] = data['low_battery_threshold']
+    with open(configPath, 'w') as f:
+        json.dump(current, f, indent=4)
+
 
 def cast_to_float(value, default=0.0):
     try:
@@ -49,7 +63,22 @@ def index():
                            weather_warnings=weather_warnings,
                            locations_data=locations_data)
 
-
+@app.route('/config', methods=['GET', 'POST'])
+def config():
+    config_data = load_config()
+    if request.method == 'POST':
+        new_data = {
+            "forecast_location": {
+                "latitude": float(request.form['latitude']),
+                "longitude": float(request.form['longitude'])
+            },
+            "wakeup_hours": [int(h) for h in request.form.getlist('wakeup_hours')],
+            "timezone": request.form['timezone'],
+            "low_battery_threshold": int(request.form['low_battery_threshold'])
+        }
+        save_config(new_data)
+        return redirect(url_for('config'))
+    return render_template('config.html', config=config_data)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Runs a flask application which grabs and renders weather data from BOM API")
