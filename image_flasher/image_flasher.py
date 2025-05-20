@@ -464,6 +464,3 @@ if __name__ == "__main__":
             IFHandler.logger.debug('System is still connected to power or SSH session is active. Not shutting down. ssh-state:%s. Pijuice on battery state:%s',IFHandler.is_ssh_active(),IFHandler.is_pijuice_on_battery())
             IFHandler.logger.info("wairing for next wakeup in %f seconds at %s",timeUntilNextWakeup,now.shift(seconds=timeUntilNextWakeup).format("DD-MM-YYYY HH:mm:ss"))
             time.sleep(timeUntilNextWakeup)  # Sleep until next wakeup
-
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
