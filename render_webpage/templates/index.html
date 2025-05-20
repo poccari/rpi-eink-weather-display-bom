@@ -49,7 +49,7 @@
                     <!-- Top Row: Icon and Temperature -->
                     <div class="icon-temp-row">
                         <div class="weather-icon">
-                            <img src="{{ url_for('static', filename='icons/' + daily_forecast[0].mdi_icon + '.png') }}" alt="{{ daily_forecast[0].extended_text }}">
+                            <img src="{{ url_for('static', filename='icons/day/' + daily_forecast[0].mdi_icon + '.png') }}" alt="{{ daily_forecast[0].extended_text }}">
                         </div>
                         <div class="temperature">
                             {{ daily_forecast[0].temp_max }}°C
@@ -81,10 +81,13 @@
                         <div class="forecast-item">
                             <div class="hour">{{ hour.hour_str }}</div>
                             <div class="icon">
-                                <img src="{{ url_for('static', filename='icons/' + hour.mdi_icon + '.png') }}" alt="{{ hour.icon_descriptor }}">
+                                <img src="{{ url_for('static', filename='icons/' + ('night/' if hour.is_night else 'day/') + hour.mdi_icon + '.png') }}" alt="{{ hour.icon_descriptor }}">
                             </div>
                             <div class="temp">{{ hour.temp }}°C</div>
-                            <div class="rain_chance">💧: {{ hour.rain_chance }}%</div>
+                            <div class="rain_chance">
+                                <img src="{{ url_for('static', filename='icons/ui/raindrop.png') }}" alt="Rain chance" class="rain-icon"> :
+                                {{ hour.rain_chance }}%
+                            </div>
                             <div class="rain_range">{{ hour.rain_amount_min }}-{{ hour.rain_amount_max }}{{ hour.rain_amount_units }}</div>
                         </div>
                         {% endfor %}
@@ -97,10 +100,13 @@
                         <div class="forecast-item">
                             <div class="day">{{ day.day }}</div>
                             <div class="icon">
-                                <img src="{{ url_for('static', filename='icons/' + day.mdi_icon + '.png') }}" alt="{{ day.extended_text }}">
+                                <img src="{{ url_for('static', filename='icons/day/' + day.mdi_icon + '.png') }}" alt="{{ day.extended_text }}">
                             </div>
                             <div class="temp">{{ day.temp_max }}°C</div>
-                            <div class="rain_chance">💧: {{ day.rain_chance }}%</div>
+                            <div class="rain_chance">
+                                <img src="{{ url_for('static', filename='icons/ui/raindrop.png') }}" alt="Rain chance" class="rain-icon"> :
+                                {{ day.rain_chance }}%
+                            </div>
                             <div class="rain_range">{{ day.rain_amount_min }}-{{ day.rain_amount_max }}{{ day.rain_amount_units }}</div>
                         </div>
                         {% endfor %}

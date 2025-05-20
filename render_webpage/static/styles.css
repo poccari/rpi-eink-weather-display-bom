@@ -179,3 +179,16 @@ html body {
     font-weight: bold;
     margin-bottom: 5px;
 }
+
+.rain_chance {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* small space between icon and text */
+    font-size: 14px;
+}
+
+.rain-icon {
+    width: 12px;
+    height: 12px;
+    vertical-align: middle;
+}
