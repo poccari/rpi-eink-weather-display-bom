@@ -12,32 +12,25 @@ testing = True
 configPath = os.path.abspath(os.path.join(os.path.dirname(__file__),"..", 'config.json'))
 testPath = os.path.join(os.path.dirname(__file__), 'testFixtures', 'mockWeatherData.json')
 
-try:
-    with open(configPath) as config_file:
-        config = json.load(config_file)
-    print(f"Config: {config}")
-    forecast_location = config.get('forecast_location',{'latitude': -34.92866000, 'longitude': 138.59863000})
-    lat = forecast_location.get('latitude',-34.92866000)#deafault to Adelaide
-    long = forecast_location.get('longitude',138.59863000)
-except Exception as e:
-    print(f"Error loading config file: {e}")
-    lat = -34.92866000
-    long =  138.59863000
 
+# Default coordinates for Adelaide, Australia
+lat = -34.92866000
+long =  138.59863000
+
+def cast_to_float(value, default=0.0):
+    try:
+        return float(value)
+    except (ValueError, TypeError) as e:
+        return default
 
 @app.route('/')
 def index():
     print(f"Testing mode: {testing}")
-    batteryPC = request.args.get('battery-status')
-    print(f"battery PC: {batteryPC}, type: {type(batteryPC)}")
-    if not batteryPC:
-        battery_status = 0
-    else:
-        try:
-            battery_status = float(batteryPC)
-        except ValueError:
-            battery_status = 0
-    forcast = pyBOM(lat, long,test=testing, test_json=testPath)
+    batteryPC = cast_to_float(request.args.get('battery-status'),0.0)
+    lat_read = cast_to_float(request.args.get('lat'), lat)
+    long_read = cast_to_float(request.args.get('long'), long)
+    
+    forcast = pyBOM(lat_read, long_read,test=testing, test_json=testPath)
     forcast.get_forecast()
     current_data = forcast.observations_data['data']
     hourly_forecast = forcast.hourly_forecasts_data['data'][0:10]
@@ -49,7 +42,7 @@ def index():
                    'time':time.format("h:mm A")}
     return render_template('index.html', 
                            timeStrings=timeStrings, 
-                           battery_status=battery_status, 
+                           battery_status=batteryPC, 
                            current_data=current_data, 
                            hourly_forecast=hourly_forecast, 
                            daily_forecast=daily_forecast, 
@@ -68,7 +61,7 @@ def main():
     args = parse_arguments()
     testing = args.testing
     print(f"Testing mode: {testing}")
-    app.run(debug=True,host="0.0.0.0", port=5000)
+    app.run(debug=True,host="0.0.0.0", port=5005)
 
 if __name__ == '__main__':
     main()
