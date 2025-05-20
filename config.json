@@ -11,5 +11,7 @@
         21
     ],
     "timezone": "Australia/Adelaide",
-    "low_battery_threshold": 10
+    "low_battery_threshold": 10,
+    "logging_level": "info",
+    "internet_check_url": "https://www.google.com"
 }
