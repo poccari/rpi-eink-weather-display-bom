@@ -98,7 +98,13 @@
                     <div class="daily-forecast">
                         {% for day in daily_forecast[1:5] %}
                         <div class="forecast-item">
-                            <div class="day">{{ day.day }}</div>
+                            <div class="day">
+                                {% if loop.first %}
+                                    Tomorrow
+                                {% else %}
+                                    {{ day.day }}
+                                {% endif %}
+                            </div>
                             <div class="icon">
                                 <img src="{{ url_for('static', filename='icons/day/' + day.mdi_icon + '.png') }}" alt="{{ day.extended_text }}">
                             </div>
