@@ -64,6 +64,7 @@ MAP_MDI_ICON = {
     "tropical_cyclone": "hurricane",
     "wind": "windy",
     "windy": "windy",
+    "windy_rain": "windy_rain",
     None: None,
 }
 MAP_UV = {
@@ -160,6 +161,8 @@ class BOM_Forecast:
             d = self.daily_forecasts_data["data"][day]
 
             d["mdi_icon"] = MAP_MDI_ICON[d["icon_descriptor"]]
+            if d["icon_descriptor"] in ["wind",'windy'] and d['rain']['chance'] > 20:
+                d["mdi_icon"] = MAP_MDI_ICON["windy_rain"]
             arrowTS = arrow.get(d["date"])
             tzawareTS = arrowTS.to(self.timezone)
             d["day"] =tzawareTS.format("dddd")#format to day of week, e.g. Monday
@@ -194,6 +197,8 @@ class BOM_Forecast:
             tzawareTS = arrowTS.to(self.timezone)
             d["hour_str"] = tzawareTS.format("ha")#format to hr and am/pm, e.g. 1pm
             d["mdi_icon"] = MAP_MDI_ICON[d["icon_descriptor"]]
+            if d["icon_descriptor"] in ["wind",'windy'] and d['rain']['chance'] > 20:
+                d["mdi_icon"] = MAP_MDI_ICON["windy_rain"]
 
             flatten_dict(["amount"], d["rain"])
             flatten_dict(["rain", "wind"], d)
