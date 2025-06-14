@@ -48,7 +48,7 @@ html body {
     margin-right: auto;
     gap: 10px;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 20px;
 }
 
 .battery-status {
@@ -109,6 +109,26 @@ html body {
     margin: 15px 0;
 }
 
+.responsive-chart svg {
+    width: 100%;
+    height: auto;
+}
+
+.plot-container {
+    width: 100%;         /* container fills available width */
+    max-width: 600px;    /* max width you want */
+    margin: 0 auto;      /* center horizontally */
+    padding: 1px;
+    background: white;   /* optional background */
+    border-radius: 1px;  /* optional styling */
+}
+
+.responsive-plot {
+    width: 100%;         /* makes the image scale to container width */
+    height: auto;        /* keeps aspect ratio */
+    display: block;      /* removes inline gap */
+}
+
 .weather-details {
     display: flex;
     flex-wrap: wrap;
@@ -129,7 +149,7 @@ html body {
     flex: 2;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0px;
 }
 
 .forecast-title {
@@ -142,8 +162,8 @@ html body {
     display: flex;
     justify-content: space-between;
     background-color: #ffffff;
-    padding: 5px;
-    border-radius: 1px;
+    padding: 1px;
+    border-radius: 0px;
 }
 
 .forecast-item {
@@ -151,8 +171,8 @@ html body {
 }
 
 .forecast-item .icon img {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
 }
 
 .forecast-item .temp {

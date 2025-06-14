@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Weather Config</title>
+    <title>Weather Configuration</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         #map { height: 300px; margin-bottom: 10px; }
         label { display: block; margin-top: 10px; }
+        .coord-preview {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
     <h1>Weather Configuration</h1>
     <form method="post">
-        <label>Choose Location (click map):</label>
+        <label>Choose Location (click or drag marker):</label>
         <div id="map"></div>
+
+        <div class="coord-preview">
+            Latitude: <span id="lat-display">{{ config.forecast_location.latitude }}</span>,
+            Longitude: <span id="lon-display">{{ config.forecast_location.longitude }}</span>
+        </div>
+
         <input type="hidden" id="latitude" name="latitude" value="{{ config.forecast_location.latitude }}">
         <input type="hidden" id="longitude" name="longitude" value="{{ config.forecast_location.longitude }}">
 
@@ -34,16 +45,21 @@
     </form>
 
     <script>
-        const map = L.map('map').setView([{{ config.forecast_location.latitude }}, {{ config.forecast_location.longitude }}], 5);
-        const marker = L.marker([{{ config.forecast_location.latitude }}, {{ config.forecast_location.longitude }}], {draggable: true}).addTo(map);
+        const lat = parseFloat("{{ config.forecast_location.latitude }}");
+        const lon = parseFloat("{{ config.forecast_location.longitude }}");
+
+        const map = L.map('map').setView([lat, lon], 5);
+        const marker = L.marker([lat, lon], { draggable: true }).addTo(map);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
         function updateCoords(latlng) {
-            document.getElementById('latitude').value = latlng.lat;
-            document.getElementById('longitude').value = latlng.lng;
+            document.getElementById('latitude').value = latlng.lat.toFixed(6);
+            document.getElementById('longitude').value = latlng.lng.toFixed(6);
+            document.getElementById('lat-display').textContent = latlng.lat.toFixed(6);
+            document.getElementById('lon-display').textContent = latlng.lng.toFixed(6);
         }
 
         marker.on('dragend', function (e) {

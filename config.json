@@ -13,5 +13,7 @@
     "timezone": "Australia/Adelaide",
     "low_battery_threshold": 10,
     "logging_level": "info",
-    "internet_check_url": "https://www.google.com"
+    "internet_check_url": "https://www.google.com",
+    "hourly_forecast_n_hours": 12,
+    "hourly_forecast_as_graph": true
 }

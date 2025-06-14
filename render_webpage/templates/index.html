@@ -74,24 +74,6 @@
 
                 <!-- Right Panel: Forecasts -->
                 <div class="forecast-panel">
-                    <div class="forecast-title">Hourly Forecast</div>
-                    <!-- Hourly Forecast -->
-                    <div class="hourly-forecast">
-                        {% for hour in hourly_forecast[:8:2] %}
-                        <div class="forecast-item">
-                            <div class="hour">{{ hour.hour_str }}</div>
-                            <div class="icon">
-                                <img src="{{ url_for('static', filename='icons/' + ('night/' if hour.is_night else 'day/') + hour.mdi_icon + '.png') }}" alt="{{ hour.icon_descriptor }}">
-                            </div>
-                            <div class="temp">{{ hour.temp }}°C</div>
-                            <div class="rain_chance">
-                                <img src="{{ url_for('static', filename='icons/ui/raindrop.png') }}" alt="Rain chance" class="rain-icon"> :
-                                {{ hour.rain_chance }}%
-                            </div>
-                            <div class="rain_range">{{ hour.rain_amount_min }}-{{ hour.rain_amount_max }}{{ hour.rain_amount_units }}</div>
-                        </div>
-                        {% endfor %}
-                    </div>
 
                     <!-- Daily Forecast -->
                     <div class="forecast-title">Daily Forecast</div>
@@ -117,6 +99,32 @@
                         </div>
                         {% endfor %}
                     </div>
+                    <div class="forecast-title">Hourly Forecast</div>
+                    <!-- Hourly Forecast Graph-->
+                    {% if hourly_png is not none %}
+                    <div class="plot-container">
+                        <img src="data:image/png;base64,{{ hourly_png }}" alt="Weather plot" class="responsive-plot" />
+                    </div>
+                    {% else %}
+                    <!-- Fallback for Hourly Forecast if SVG is not available -->
+                    <div class="hourly-forecast">
+                        {% for hour in hourly_forecast[:8:2] %}
+                        <div class="forecast-item">
+                            <div class="hour">{{ hour.hour_str }}</div>
+                            <div class="icon">
+                                <img src="{{ url_for('static', filename='icons/' + ('night/' if hour.is_night else 'day/') + hour.mdi_icon + '.png') }}" alt="{{ hour.icon_descriptor }}">
+                            </div>
+                            <div class="temp">{{ hour.temp }}°C</div>
+                            <div class="rain_chance">
+                                <img src="{{ url_for('static', filename='icons/ui/raindrop.png') }}" alt="Rain chance" class="rain-icon"> :
+                                {{ hour.rain_chance }}%
+                            </div>
+                            <div class="rain_range">{{ hour.rain_amount_min }}-{{ hour.rain_amount_max }}{{ hour.rain_amount_units }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% endif %}
                 </div>
             </div>
 
